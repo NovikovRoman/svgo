@@ -4,7 +4,7 @@ import (
 	"os"
 	"strconv"
 
-	svg "github.com/ajstarks/svgo"
+	svg "github.com/NovikovRoman/svgo"
 )
 
 func main() {

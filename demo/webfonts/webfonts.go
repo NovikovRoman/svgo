@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
 
-	svg "github.com/ajstarks/svgo"
+	svg "github.com/NovikovRoman/svgo"
 )
 
 var (
@@ -31,7 +31,7 @@ func googlefont(f string) []string {
 		return empty
 	}
 	defer r.Body.Close()
-	b, rerr := ioutil.ReadAll(r.Body)
+	b, rerr := io.ReadAll(r.Body)
 	if rerr != nil || r.StatusCode != http.StatusOK {
 		return empty
 	}

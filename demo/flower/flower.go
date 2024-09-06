@@ -7,7 +7,7 @@ import (
 	"math/rand/v2"
 	"os"
 
-	svg "github.com/ajstarks/svgo"
+	svg "github.com/NovikovRoman/svgo"
 )
 
 var (

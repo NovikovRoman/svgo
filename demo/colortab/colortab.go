@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	svg "github.com/ajstarks/svgo"
+	svg "github.com/NovikovRoman/svgo"
 )
 
 func main() {

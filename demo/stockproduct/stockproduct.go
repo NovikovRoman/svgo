@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ajstarks/svgo"
+	"github.com/NovikovRoman/svgo"
 )
 
 // Parameters defines options

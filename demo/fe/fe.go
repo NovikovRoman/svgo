@@ -2,7 +2,7 @@ package main
 
 
 import (
-	"github.com/ajstarks/svgo"
+	"github.com/NovikovRoman/svgo"
 	"os"
 )
 

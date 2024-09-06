@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	svg "github.com/ajstarks/svgo"
+	svg "github.com/NovikovRoman/svgo"
 )
 
 var canvas = svg.New(os.Stdout)

@@ -1,17 +1,17 @@
 # Building and Usage
 
-See svgdef.[svg|png|pdf] for a graphical view of the function calls.
+See svgdef.[svg|png] for a graphical view of the function calls.
 
 Using go get:
 
 ```shell
-go get github.com/ajstarks/svgo
+go get github.com/NovikovRoman/svgo
 ```
 
 You can use godoc to browse the documentation from the command line:
 
 ```shell
-go doc github.com/ajstarks/svgo
+go doc github.com/NovikovRoman/svgo
 ```
 
 A minimal program, to generate SVG to standard output:
@@ -20,7 +20,7 @@ A minimal program, to generate SVG to standard output:
 package main
 
 import (
-    "github.com/ajstarks/svgo"
+    "github.com/NovikovRoman/svgo"
     "os"
 )
 
@@ -41,7 +41,7 @@ when using float:
 package main
 
 import (
-    svg "github.com/ajstarks/svgo/float"
+    svg "github.com/NovikovRoman/svgo/float"
     "os"
 )
 
@@ -63,7 +63,7 @@ package main
 
 import (
     "log"
-    "github.com/ajstarks/svgo"
+    "github.com/NovikovRoman/svgo"
     "net/http"
 )
 
@@ -91,7 +91,7 @@ package main
 
 import (
     "log"
-    svg "github.com/ajstarks/svgo/float"
+    svg "github.com/NovikovRoman/svgo/float"
     "net/http"
 )
 

@@ -4,7 +4,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/ajstarks/svgo"
+	"github.com/NovikovRoman/svgo"
 	"os"
 )
 

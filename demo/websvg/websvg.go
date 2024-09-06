@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	svg "github.com/ajstarks/svgo"
+	svg "github.com/NovikovRoman/svgo"
 )
 
 const defaultstyle = "fill:rgb(127,0,0)"

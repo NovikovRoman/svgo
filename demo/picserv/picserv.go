@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"time"
 
-	svg "github.com/ajstarks/svgo"
+	svg "github.com/NovikovRoman/svgo"
 )
 
 var listen = flag.String("listen", ":1958", "http service address")

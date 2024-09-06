@@ -1,3 +1,3 @@
-module github.com/ajstarks/svgo
+module github.com/NovikovRoman/svgo
 
 go 1.22

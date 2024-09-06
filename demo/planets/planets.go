@@ -6,7 +6,7 @@ import (
 	"image/png"
 	"os"
 
-	svg "github.com/ajstarks/svgo"
+	svg "github.com/NovikovRoman/svgo"
 )
 
 var ssDist = []float64{
