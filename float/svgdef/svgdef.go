@@ -461,7 +461,7 @@ func defobjects(w, h float64) {
 	defpath("path", h, h2, "Path(s string, style ...string)")
 	defqbez("qbez", h, h2, h, "Qbez(sx, sy, cx, cy, ex, ey float64, style ...string)")
 	defbez("bezier", h, h2, h, "Bezier(sx, sy, cx, cy, px, py, ex, ey float64, style ...string)")
-	defimage("image", 128, 128, "gophercolor128x128.png", "Image(x, y float64, w, h int,  path string, style ...string)")
+	defimage("image", 128, 128, "../../gophercolor128x128.png", "Image(x, y float64, w, h int,  path string, style ...string)")
 	deflg("lgrad", w, h, "LinearGradient(s string, x1, y1, x2, y2 uint8, oc []Offcolor)")
 	defrg("rgrad", w, h, "RadialGradient(s string, cx, cy, r, fx, fy uint8, oc []Offcolor)")
 	deftrans("trans", w, h, "Translate(x, y float64)")
@@ -521,7 +521,7 @@ var roworder = [][]string{
 func main() {
 	width := 4500.0
 	height := (width * 3) / 4
-	canvas.Decimals = 0
+	canvas.Decimals(0)
 	canvas.Start(width, height)
 	defobjects(250, 125)
 	canvas.Title("SVG Go Library Description")

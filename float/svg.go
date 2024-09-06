@@ -34,7 +34,7 @@ import (
 // SVG defines the location of the generated SVG
 type SVG struct {
 	Writer   io.Writer
-	Decimals int
+	decimals int
 }
 
 // Offcolor defines the offset and color for gradients
@@ -64,7 +64,11 @@ const (
 
 // New is the SVG constructor, specifying the io.Writer where the generated SVG is written
 // and the number of digits after the decimal place in generated data
-func New(w io.Writer) *SVG { return &SVG{Writer: w, Decimals: 2} }
+func New(w io.Writer) *SVG { return &SVG{Writer: w, decimals: 2} }
+
+func (svg *SVG) Decimals(d int) {
+	svg.decimals = d
+}
 
 func (svg *SVG) print(a ...interface{}) (n int, errno error) {
 	return fmt.Fprint(svg.Writer, a...)
@@ -91,7 +95,7 @@ func (svg *SVG) genattr(ns []string) {
 // Other attributes may be optionally added, for example viewbox or additional namespaces
 // Standard Reference: http://www.w3.org/TR/SVG11/struct.html#SVGElement
 func (svg *SVG) Start(w float64, h float64, ns ...string) {
-	d := svg.Decimals
+	d := svg.decimals
 	svg.printf(svginitfmt, svgtop, d, w, "", d, h, "")
 	svg.genattr(ns)
 }
@@ -99,7 +103,7 @@ func (svg *SVG) Start(w float64, h float64, ns ...string) {
 // Startunit begins the SVG document, with width and height in the specified units
 // Other attributes may be optionally added, for example viewbox or additional namespaces
 func (svg *SVG) Startunit(w float64, h float64, unit string, ns ...string) {
-	d := svg.Decimals
+	d := svg.decimals
 	svg.printf(svginitfmt, svgtop, d, w, unit, d, h, unit)
 	svg.genattr(ns)
 }
@@ -107,7 +111,7 @@ func (svg *SVG) Startunit(w float64, h float64, unit string, ns ...string) {
 // Startpercent begins the SVG document, with width and height as percentages
 // Other attributes may be optionally added, for example viewbox or additional namespaces
 func (svg *SVG) Startpercent(w float64, h float64, ns ...string) {
-	d := svg.Decimals
+	d := svg.decimals
 	svg.printf(svginitfmt, svgtop, d, w, "%", d, h, "%")
 	svg.genattr(ns)
 }
@@ -115,13 +119,13 @@ func (svg *SVG) Startpercent(w float64, h float64, ns ...string) {
 // Startview begins the SVG document, with the specified width, height, and viewbox
 // Other attributes may be optionally added, for example viewbox or additional namespaces
 func (svg *SVG) Startview(w, h, minx, miny, vw, vh float64) {
-	d := svg.Decimals
+	d := svg.decimals
 	svg.Start(w, h, fmt.Sprintf(vbfmt, d, minx, d, miny, d, vw, d, vh))
 }
 
 // StartviewUnit begins the SVG document with the specified unit
 func (svg *SVG) StartviewUnit(w, h float64, unit string, minx, miny, vw, vh float64) {
-	d := svg.Decimals
+	d := svg.decimals
 	svg.Startunit(w, h, unit, fmt.Sprintf(vbfmt, d, minx, d, miny, d, vw, d, vh))
 }
 
@@ -177,7 +181,7 @@ func (svg *SVG) Gtransform(s string) { svg.println(group("transform", s)) }
 
 // Translate begins coordinate translation, end with Gend()
 // Standard Reference: http://www.w3.org/TR/SVG11/coords.html#TransformAttribute
-func (svg *SVG) Translate(x, y float64) { svg.Gtransform(translate(x, y, svg.Decimals)) }
+func (svg *SVG) Translate(x, y float64) { svg.Gtransform(translate(x, y, svg.decimals)) }
 
 // Scale scales the coordinate system by n, end with Gend()
 // Standard Reference: http://www.w3.org/TR/SVG11/coords.html#TransformAttribute
@@ -207,13 +211,13 @@ func (svg *SVG) Rotate(r float64) { svg.Gtransform(rotate(r)) }
 
 // TranslateRotate translates the coordinate system to (x,y), then rotates to r degrees, end with Gend()
 func (svg *SVG) TranslateRotate(x, y float64, r float64) {
-	d := svg.Decimals
+	d := svg.decimals
 	svg.Gtransform(translate(x, y, d) + " " + rotate(r))
 }
 
 // RotateTranslate rotates the coordinate system r degrees, then translates to (x,y), end with Gend()
 func (svg *SVG) RotateTranslate(x, y float64, r float64) {
-	d := svg.Decimals
+	d := svg.decimals
 	svg.Gtransform(rotate(r) + " " + translate(x, y, d))
 }
 
@@ -248,7 +252,7 @@ func (svg *SVG) DefEnd() { svg.println(`</defs>`) }
 // Marker defines a marker
 // Standard reference: http://www.w3.org/TR/SVG11/painting.html#MarkerElement
 func (svg *SVG) Marker(id string, x, y, width, height float64, s ...string) {
-	d := svg.Decimals
+	d := svg.decimals
 	svg.printf(`<marker id="%s" refX="%.*f" refY="%.*f" markerWidth="%.*f" markerHeight="%.*f" %s`,
 		id, d, x, d, y, d, width, d, height, endstyle(s, ">\n"))
 }
@@ -265,7 +269,7 @@ func (svg *SVG) Pattern(id string, x, y, width, height float64, putype string, s
 	if putype != "user" {
 		puattr = "objectBoundingBox"
 	}
-	d := svg.Decimals
+	d := svg.decimals
 	svg.printf(`<pattern id="%s" x="%.*f" y="%.*f" width="%.*f" height="%.*f" patternUnits="%s" %s`,
 		id, d, x, d, y, d, width, d, height, puattr, endstyle(s, ">\n"))
 }
@@ -295,12 +299,12 @@ func (svg *SVG) LinkEnd() { svg.println(`</a>`) }
 // Use places the object referenced at link at the location x, y, with optional style.
 // Standard Reference: http://www.w3.org/TR/SVG11/struct.html#UseElement
 func (svg *SVG) Use(x float64, y float64, link string, s ...string) {
-	svg.printf(`<use %s %s %s`, loc(x, y, svg.Decimals), href(link), endstyle(s, emptyclose))
+	svg.printf(`<use %s %s %s`, loc(x, y, svg.decimals), href(link), endstyle(s, emptyclose))
 }
 
 // Mask creates a mask with a specified id, dimension, and optional style.
 func (svg *SVG) Mask(id string, x float64, y float64, w float64, h float64, s ...string) {
-	d := svg.Decimals
+	d := svg.decimals
 	svg.printf(`<mask id="%s" x="%.*f" y="%.*f" width="%.*f" height="%.*f" %s`, id, d, x, d, y, d, w, d, h, endstyle(s, `>`))
 }
 
@@ -312,14 +316,14 @@ func (svg *SVG) MaskEnd() { svg.println(`</mask>`) }
 // Circle centered at x,y, with radius r, with optional style.
 // Standard Reference: http://www.w3.org/TR/SVG11/shapes.html#CircleElement
 func (svg *SVG) Circle(x float64, y float64, r float64, s ...string) {
-	d := svg.Decimals
+	d := svg.decimals
 	svg.printf(`<circle cx="%.*f" cy="%.*f" r="%.*f" %s`, d, x, d, y, d, r, endstyle(s, emptyclose))
 }
 
 // Ellipse centered at x,y, centered at x,y with radii w, and h, with optional style.
 // Standard Reference: http://www.w3.org/TR/SVG11/shapes.html#EllipseElement
 func (svg *SVG) Ellipse(x float64, y float64, w float64, h float64, s ...string) {
-	d := svg.Decimals
+	d := svg.decimals
 	svg.printf(`<ellipse cx="%.*f" cy="%.*f" rx="%.*f" ry="%.*f" %s`,
 		d, x, d, y, d, w, d, h, endstyle(s, emptyclose))
 }
@@ -333,7 +337,7 @@ func (svg *SVG) Polygon(x []float64, y []float64, s ...string) {
 // Rect draws a rectangle with upper left-hand corner at x,y, with width w, and height h, with optional style
 // Standard Reference: http://www.w3.org/TR/SVG11/shapes.html#RectElement
 func (svg *SVG) Rect(x float64, y float64, w float64, h float64, s ...string) {
-	svg.printf(`<rect %s %s`, dim(x, y, w, h, svg.Decimals), endstyle(s, emptyclose))
+	svg.printf(`<rect %s %s`, dim(x, y, w, h, svg.decimals), endstyle(s, emptyclose))
 }
 
 // CenterRect draws a rectangle with its center at x,y, with width w, and height h, with optional style
@@ -347,8 +351,8 @@ func (svg *SVG) CenterRect(x float64, y float64, w float64, h float64, s ...stri
 // Style is optional.
 // Standard Reference: http://www.w3.org/TR/SVG11/shapes.html#RectElement
 func (svg *SVG) Roundrect(x float64, y float64, w float64, h float64, rx float64, ry float64, s ...string) {
-	d := svg.Decimals
-	svg.printf(`<rect %s rx="%.*f" ry="%.*f" %s`, dim(x, y, w, h, svg.Decimals), d, rx, d, ry, endstyle(s, emptyclose))
+	d := svg.decimals
+	svg.printf(`<rect %s rx="%.*f" ry="%.*f" %s`, dim(x, y, w, h, svg.decimals), d, rx, d, ry, endstyle(s, emptyclose))
 }
 
 // Square draws a square with upper left corner at x,y with sides of length l, with optional style.
@@ -371,7 +375,7 @@ func (svg *SVG) Path(d string, s ...string) {
 // otherwise the arc sweep is less than 180 degrees
 // http://www.w3.org/TR/SVG11/paths.html#PathDataEllipticalArcCommands
 func (svg *SVG) Arc(sx float64, sy float64, ax float64, ay float64, r float64, large bool, sweep bool, ex float64, ey float64, s ...string) {
-	d := svg.Decimals
+	d := svg.decimals
 	svg.printf(`%s A%s %.*f %s %s %s" %s`,
 		ptag(sx, sy, d), coord(ax, ay, d), d, r, onezero(large), onezero(sweep), coord(ex, ey, d), endstyle(s, emptyclose))
 }
@@ -380,7 +384,7 @@ func (svg *SVG) Arc(sx float64, sy float64, ax float64, ay float64, r float64, l
 // with control points at cx,cy and px,py.
 // Standard Reference: http://www.w3.org/TR/SVG11/paths.html#PathDataCubicBezierCommands
 func (svg *SVG) Bezier(sx float64, sy float64, cx float64, cy float64, px float64, py float64, ex float64, ey float64, s ...string) {
-	d := svg.Decimals
+	d := svg.decimals
 	svg.printf(`%s C%s %s %s" %s`,
 		ptag(sx, sy, d), coord(cx, cy, d), coord(px, py, d), coord(ex, ey, d), endstyle(s, emptyclose))
 }
@@ -389,7 +393,7 @@ func (svg *SVG) Bezier(sx float64, sy float64, cx float64, cy float64, px float6
 // beginning at sx,sy, ending at ex, sy with control points at cx, cy
 // Standard Reference: http://www.w3.org/TR/SVG11/paths.html#PathDataQuadraticBezierCommands
 func (svg *SVG) Qbez(sx float64, sy float64, cx float64, cy float64, ex float64, ey float64, s ...string) {
-	d := svg.Decimals
+	d := svg.decimals
 	svg.printf(`%s Q%s %s" %s`,
 		ptag(sx, sy, d), coord(cx, cy, d), coord(ex, ey, d), endstyle(s, emptyclose))
 }
@@ -398,7 +402,7 @@ func (svg *SVG) Qbez(sx float64, sy float64, cx float64, cy float64, ex float64,
 // with control points are at cx,cy, ex,ey.
 // Standard Reference: http://www.w3.org/TR/SVG11/paths.html#PathDataQuadraticBezierCommands
 func (svg *SVG) Qbezier(sx float64, sy float64, cx float64, cy float64, ex float64, ey float64, tx float64, ty float64, s ...string) {
-	d := svg.Decimals
+	d := svg.decimals
 	svg.printf(`%s Q%s %s T%s" %s`,
 		ptag(sx, sy, d), coord(cx, cy, d), coord(ex, ey, d), coord(tx, ty, d), endstyle(s, emptyclose))
 }
@@ -408,7 +412,7 @@ func (svg *SVG) Qbezier(sx float64, sy float64, cx float64, cy float64, ex float
 // Line draws a straight line between two points, with optional style.
 // Standard Reference: http://www.w3.org/TR/SVG11/shapes.html#LineElement
 func (svg *SVG) Line(x1 float64, y1 float64, x2 float64, y2 float64, s ...string) {
-	d := svg.Decimals
+	d := svg.decimals
 	svg.printf(`<line x1="%.*f" y1="%.*f" x2="%.*f" y2="%.*f" %s`, d, x1, d, y1, d, x2, d, y2, endstyle(s, emptyclose))
 }
 
@@ -422,13 +426,13 @@ func (svg *SVG) Polyline(x []float64, y []float64, s ...string) {
 // width w, and height h, referenced at link, with optional style.
 // Standard Reference: http://www.w3.org/TR/SVG11/struct.html#ImageElement
 func (svg *SVG) Image(x float64, y float64, w int, h int, link string, s ...string) {
-	svg.printf(`<image %s %s %s`, dim(x, y, float64(w), float64(h), svg.Decimals), href(link), endstyle(s, emptyclose))
+	svg.printf(`<image %s %s %s`, dim(x, y, float64(w), float64(h), svg.decimals), href(link), endstyle(s, emptyclose))
 }
 
 // Text places the specified text, t at x,y according to the style specified in s
 // Standard Reference: http://www.w3.org/TR/SVG11/text.html#TextElement
 func (svg *SVG) Text(x float64, y float64, t string, s ...string) {
-	svg.printf(`<text %s %s`, loc(x, y, svg.Decimals), endstyle(s, ">"))
+	svg.printf(`<text %s %s`, loc(x, y, svg.decimals), endstyle(s, ">"))
 	xml.Escape(svg.Writer, []byte(t))
 	svg.println(`</text>`)
 }
@@ -436,7 +440,7 @@ func (svg *SVG) Text(x float64, y float64, t string, s ...string) {
 // Textspan begins text, assuming a tspan will be included, end with TextEnd()
 // Standard Reference: https://www.w3.org/TR/SVG11/text.html#TSpanElement
 func (svg *SVG) Textspan(x float64, y float64, t string, s ...string) {
-	svg.printf(`<text %s %s`, loc(x, y, svg.Decimals), endstyle(s, ">"))
+	svg.printf(`<text %s %s`, loc(x, y, svg.decimals), endstyle(s, ">"))
 	xml.Escape(svg.Writer, []byte(t))
 }
 
@@ -469,7 +473,7 @@ func (svg *SVG) Textpath(t string, pathid string, s ...string) {
 // Textlines places a series of lines of text starting at x,y, at the specified size, fill, and alignment.
 // Each line is spaced according to the spacing argument
 func (svg *SVG) Textlines(x, y float64, s []string, size, spacing float64, fill, align string) {
-	d := svg.Decimals
+	d := svg.decimals
 	svg.Gstyle(fmt.Sprintf("font-size:%.*fpx;fill:%s;text-anchor:%s", d, size, fill, align))
 	for _, t := range s {
 		svg.Text(x, y, t)
@@ -966,7 +970,7 @@ func (svg *SVG) pp(x []float64, y []float64, tag string) {
 		return
 	}
 	lx := len(x) - 1
-	d := svg.Decimals
+	d := svg.decimals
 	for i := 0; i < lx; i++ {
 		svg.print(coord(x[i], y[i], d) + " ")
 	}
